@@ -87,23 +87,23 @@ Vagrant.configure(2) do |config|
         echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list
         sudo apt-get update
         sudo apt-get -y install elasticsearch
-        #sudo sed -i 's/# network.host: 192.168.0.1/network.host: localhost/' /etc/elasticsearch/elasticsearch.yml
+        sudo sed -i 's/# network.host: 192.168.0.1/network.host: localhost/' /etc/elasticsearch/elasticsearch.yml
         sudo service elasticsearch restart
         sudo update-rc.d elasticsearch defaults 95 10
         cd /usr/share/elasticsearch
-        bin/plugin install logstash-input-http
+        #bin/plugin install logstash-input-http
 
         # install kibana
         sudo groupadd -g 999 kibana
         sudo useradd -u 999 -g 999 kibana
         cd ~; wget https://download.elastic.co/kibana/kibana/kibana-4.2.0-linux-x64.tar.gz
         tar xvf kibana-*.tar.gz
-        sudo sed -i 's/# server.host: "0.0.0.0"/server.host: "localhost"/' ~/kibana-4*/config/kibana.yml
+        sudo sed -i 's/# server.host: 0.0.0.0/server.host: localhost/' ~/kibana-4*/config/kibana.yml
         sudo mkdir -p /opt/kibana
         sudo cp -R ~/kibana-4*/* /opt/kibana/
         sudo chown -R kibana: /opt/kibana
-        cd /etc/init.d && sudo curl -o kibana https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/elk/resources/kibana-4.x-init
-        cd /etc/default && sudo curl -o kibana https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/elk/resources/kibana-4.x-default
+        cd /etc/init.d && sudo curl -o  kibana https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/vagrant-elk/resources/kibana-4.x-init
+        cd /etc/default && sudo curl -o kibana https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/vagrant-elk/resources/kibana-4.x-default
         sudo chmod +x /etc/init.d/kibana
         sudo update-rc.d kibana defaults 96 9
         sudo service kibana start
@@ -111,18 +111,19 @@ Vagrant.configure(2) do |config|
         # install nginx
         sudo apt-get -y install nginx apache2-utils
         #sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin
-        #sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.original
         sudo rm /etc/nginx/sites-enabled/default
-        cd ~; curl -o elk https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/elk/nginx-elk-site
-        sudo mv elk /etc/nginx/sites-available/
-        sudo ln -s /etc/nginx/sites-available/elk /etc/nginx/sites-enabled/elk
+        cd /etc/nginx/sites-available
+        sudo curl -o kibana https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/vagrant-elk/resources/nginx-kibana-site
+        sudo curl -o elasticsearch https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/vagrant-elk/resources/nginx-elasticsearch-site
+        sudo ln -s /etc/nginx/sites-available/kibana /etc/nginx/sites-enabled/kibana
+        sudo ln -s /etc/nginx/sites-available/elasticsearch /etc/nginx/sites-enabled/elasticsearch
         sudo service nginx restart
 
         # install logstash
         echo 'deb http://packages.elasticsearch.org/logstash/2.0/debian stable main' | sudo tee /etc/apt/sources.list.d/logstash.list
         sudo apt-get update
         sudo apt-get install logstash
-        cd /etc/logstash/conf.d/ && curl -O https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/elk/resources/logstash.conf
+        cd /etc/logstash/conf.d/ && curl -O https://raw.githubusercontent.com/sbxtien/VagrantProjects/master/vagrant-elk/resources/logstash.conf
         sudo service logstash start
 
     SHELL
