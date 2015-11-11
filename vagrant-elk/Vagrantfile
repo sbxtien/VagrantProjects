@@ -101,11 +101,11 @@ Vagrant.configure(2) do |config|
         sudo service logstash start
 
         # install kibana
-        sudo groupadd -g 999 kibana
-        sudo useradd -u 999 -g 999 kibana
+        sudo groupadd -g 5601 kibana
+        sudo useradd -u 5601 -g 5601 kibana
         cd ~; wget https://download.elastic.co/kibana/kibana/kibana-4.2.0-linux-x64.tar.gz
         tar xvf kibana-*.tar.gz
-        sudo sed -i 's/# server.host: "0.0.0.0"/server.host: localhost/' ~/kibana-4*/config/kibana.yml
+        sed -i 's/# server.host: "0.0.0.0"/server.host: localhost/' ~/kibana-4*/config/kibana.yml
         sudo mkdir -p /opt/kibana
         sudo cp -R ~/kibana-4*/* /opt/kibana/
         sudo chown -R kibana: /opt/kibana
