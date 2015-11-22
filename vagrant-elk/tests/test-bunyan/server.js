@@ -18,7 +18,7 @@
                 level: 'info',
                 stream: require('bunyan-logstash').createStream({
                     host: 'ca-to-sc-elk-dev',
-                    port: 9999
+                    port: 9998
                 })
             }]
         });
@@ -32,7 +32,7 @@
         .get(function (req, res) {
             var timespan = Date.now();
             res.send('ok');
-            req.log.info({ timespan: Date.now() - timespan });
+            req.log.info({ timespan: Date.now() - timespan, ip: "174.116.237.134" });
         });
 
     app.use(function(req, res, next) {
